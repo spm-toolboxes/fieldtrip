@@ -22,13 +22,16 @@ function filename = dccnpath(filename)
 %    global ft_default
 %    ft_default.dccnpath = '/your/copy';
 %
-% If you do not have a local copy and do not define ft_default.dccnpath manually,
-% then dccnpath will automatically use a temporary directory and try to download the
-% data.
+% If you DO HAVE a local copy, it should contain a directory with the name 'ftp'. The 
+% content of the ftp directory should match that on the FieldTrip download server, 
+% for example '/your/copy/ftp/test/ctf'.
 %
-% See also  FT_TEST, WHICH, WEBSAVE
-
-% Copyright (C) 2012-2023, Donders Centre for Cognitive Neuroimaging, Nijmegen, NL
+% If you DO NOT have a local copy and do not define ft_default.dccnpath manually,
+% then this function will automatically try to download the publicly available data 
+% to a temporary directory.
+%
+% See also WHICH, WEBSAVE
+% Copyright (C) 2012-2024, Donders Centre for Cognitive Neuroimaging, Nijmegen, NL
 %
 % This file is part of FieldTrip, see http://www.fieldtriptoolbox.org
 % for the documentation and details.
@@ -145,8 +148,8 @@ if ~isfield(ft_default, 'dccnpath') || isempty(ft_default.dccnpath)
 end
 
 % we do not want it to end with a '/' or '\'
-strip(ft_default.dccnpath, 'right', '/');
-strip(ft_default.dccnpath, 'right', '\');
+ft_default.dccnpath = strip(ft_default.dccnpath, 'right', '/');
+ft_default.dccnpath = strip(ft_default.dccnpath, 'right', '\');
 
 % alternative0 is the same as the input filename, but potentially updated for windows
 if ~ispc
@@ -177,6 +180,9 @@ else
   % so, we need to find the right path to the HTTPS download server
   pattern = 'ftp(.*)';
   datadir = regexp(alternative0, pattern, 'tokens', 'once');
+  if iscell(datadir)
+    datadir = datadir{1};
+  end
   weblocation = strcat('https://download.fieldtriptoolbox.org', datadir);
   weblocation = strrep(weblocation, '\', '/');
 
